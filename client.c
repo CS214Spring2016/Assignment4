@@ -19,10 +19,10 @@ void error(char* msg)
 int main(int argc, char *argv[])
 {
 	// Declare initial vars
-    int sockfd = -1;																// file descriptor for our socket
-	int portno = -1;																// server port to connect to
-	int n = -1;																		// utility variable - for monitoring reading/writing from/to the socket
-	char buffer[256];															// char array to store data going to and coming from the server
+    int sockfd = -1;		// file descriptor for our socket
+	int portno = -1;		// server port to connect to
+	int n = -1;				// utility variable - for monitoring reading/writing from/to the socket
+	char buffer[256];		// char array to store data going to and coming from the server
     struct sockaddr_in serverAddressInfo;						// Super-special secret C struct that holds address info for building our socket
     struct hostent *serverIPAddress;									// Super-special secret C struct that holds info about a machine's address
     
@@ -90,38 +90,72 @@ int main(int argc, char *argv[])
 	
 	
 	/** If we're here, we're connected to the server .. w00t!  **/
-	
-    printf("Please enter the message: ");
-	
-	// zero out the message buffer
-    bzero(buffer,256);
 
-	// get a message from the client
-    fgets(buffer,255,stdin);
-    
-	// try to write it out to the server
-	n = write(sockfd,buffer,strlen(buffer));
-	
-	// if we couldn't write to the server for some reason, complain and exit
-    if (n < 0)
+	while(1)
 	{
-         error("ERROR writing to socket");
-    }
-	
-	// sent message to the server, zero the buffer back out to read the server's response
-	bzero(buffer,256);
+		printf("Enter command for server: ");
+		bzero(buffer,256);
+		fgets(buffer,255,stdin);
+		if((send(sockfd,buffer,strlen(buffer),0)) == -1)
+		{
+			error("buffer fucked up");
+			close(sockfd);
+			exit(1);
+		}
+		else
+		{
+			printf("Message being sent: %s",buffer);
+			n = recv(sockfd,buffer,sizeof(buffer),0);
+			if(n <= 0)
+			{
+				printf("Connection closed or error");
+				exit(0);
+				break;
+			}
 
-	// read a message from the server into the buffer
-    n = read(sockfd,buffer,255);
-	
-	// if we couldn't read from the server for some reason, complain and exit
-    if (n < 0)
-	{
-         error("ERROR reading from socket");
+			buffer[n] = '\0';
+			printf("client: message received from server: %s\n", buffer);
+		}
 	}
 
-	// print out server's message
-    printf("%s\n",buffer);
+	close(sockfd);
+
+
+
+
+
+	
+ //    printf("Please enter a command: ");
+	
+	// // zero out the message buffer
+ //    bzero(buffer,256);
+
+	// // get a message from the client
+ //    fgets(buffer,255,stdin);
+    
+	// // try to write it out to the server
+	// n = write(sockfd,buffer,strlen(buffer));
+	
+	// // if we couldn't write to the server for some reason, complain and exit
+ //    if (n < 0)
+	// {
+ //         error("ERROR writing to socket");
+ //    }
+	
+	// // sent message to the server, zero the buffer back out to read the server's response
+	// bzero(buffer,256);
+
+	// // read a message from the server into the buffer
+ //    n = read(sockfd,buffer,255);
+	
+	// // if we couldn't read from the server for some reason, complain and exit
+ //    if (n < 0)
+	// {
+ //         error("ERROR reading from socket");
+	// }
+
+	// // print out server's message
+ //    printf("%s\n",buffer);
 
 
     return 0;

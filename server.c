@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <pthread.h>
 
 //fun error method #extensible #objectoriented
@@ -13,6 +14,41 @@ void error(char* msg)
 {
 	perror(msg);
 	exit(0);
+}
+
+void toLowercase(char *str)
+{
+	for(int i = 0; i<strlen(str); i++)
+	{
+		str[i] = tolower(str[i]);
+	}
+}
+
+void stripNonAlpha(char *str)
+{
+	for(int i = 0; i < strlen(str); i++)
+	{
+		if(isalnum(str[i]) == 0)
+		{
+			str[i] = ' ';
+		}
+	}
+}
+
+void tokenizeInput(char *str)
+{
+	const char delims[2] = " ";
+	char *token;
+
+	//first token
+	token = strtok(str,delims);
+
+
+	while(token != NULL)
+	{
+		printf("token: %s",token);
+		token = strtok(NULL,delims);
+	}
 }
 
 int main(int argc, char *argv[])
@@ -76,40 +112,75 @@ int main(int argc, char *argv[])
     clilen = sizeof(clientAddressInfo);
 	
 	// block until a client connects, when it does, create a client socket
-    newsockfd = accept(sockfd, (struct sockaddr *) &clientAddressInfo, &clilen);
+    newsockfd = accept(sockfd, (struct sockaddr *)&clientAddressInfo, &clilen);
 	 
 	 
 	 
 	/** If we're here, a client tried to connect **/
+	while(1)
+	{
+		if((n = recv(newsockfd, buffer, 255, 0)) == -1)
+		{
+			error("recv");
+		}
+		else if(n == 0)
+		{
+			printf("connection closed");
+			break;
+		}
+
+		buffer[n] = '\0';
+		printf("message recieved: %s",buffer);
+
+		stripNonAlpha(buffer);
+		toLowercase(buffer);
+
+		if((send(newsockfd,buffer,strlen(buffer),0)) == -1)
+		{
+			error("message send failure");
+			close(newsockfd);
+			break;
+		}
+
+		printf("reply: %s\n",buffer);
+	}
+
+
+
+
+
+
+
+
 	 
-	// if the connection blew up for some reason, complain and exit
-    if (newsockfd < 0) 
-	{
-        error("ERROR on accept");
-	}
+	// // if the connection blew up for some reason, complain and exit
+ //    if (newsockfd < 0) 
+	// {
+ //        error("ERROR on accept");
+	// }
 	
-	// zero out the char buffer to receive a client message
-    bzero(buffer,256);
+	// // zero out the char buffer to receive a client message
+ //    bzero(buffer,256);
 	
-	// try to read from the client socket
-    n = read(newsockfd,buffer,255);
+	// // try to read from the client socket
+ //    n = read(newsockfd,buffer,255);
 	
-	// if the read from the client blew up, complain and exit
-    if (n < 0)
-	{
-		error("ERROR reading from socket");
-	}
+	// // if the read from the client blew up, complain and exit
+ //    if (n < 0)
+	// {
+	// 	error("ERROR reading from socket");
+	// }
 	
-    printf("Here is the message: %s\n",buffer);
+ //    printf("Here is the message: %s\n",buffer);
 	
-	// try to write to the client socket
-    n = write(newsockfd,"I got your message",18);
+	// // try to write to the client socket
+ //    n = write(newsockfd,"I got your message",18);
 	
-	// if the write to the client below up, complain and exit
-    if (n < 0)
-	{
-		error("ERROR writing to socket");
-	}
+	// // if the write to the client below up, complain and exit
+ //    if (n < 0)
+	// {
+	// 	error("ERROR writing to socket");
+	// }
     
 	
 	return 0; 
