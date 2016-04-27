@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int startServer(char* portNumber);
+//int startServer(char* portNumber);
 void error(char *msg);
 
 

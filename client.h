@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void startClient(char* serverAddress);
+//void startClient(char* serverAddress);
 void error(char* msg);
 
 
