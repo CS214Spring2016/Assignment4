@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 	int sockfd = -1;
 	int newsockfd = -1;	
 	int portno = -1;
-	int clilen = -1;
+	unsigned int clilen = -1;
 	int n = -1;		
 	char buffer[256];
 	struct sockaddr_in serverAddressInfo;
