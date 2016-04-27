@@ -1,4 +1,5 @@
-#include "client.h"
+#ifndef CLIENT_H
+#define CLIENT_H
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -8,14 +9,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-//dope error stuff
-void error(char* msg)
-{
-	perror(msg);
-	exit(0);
-}
+void startClient(char* serverAddress);
+void error(char* msg);
 
-void startClient(char* serverAddress)
-{
-	
-}
+
+
+
+
+
+
+
+
+
+#endif
