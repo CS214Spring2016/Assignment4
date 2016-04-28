@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			printf("Message being sent: %s",buffer);
+			printf("Message: %s",buffer);
 			n = recv(sockfd,buffer,sizeof(buffer),0);
 			if(n <= 0)
 			{
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 			}
 
 			buffer[n] = '\0';
-			printf("client: message received from server: %s\n", buffer);
+			printf("server: %s\n\n", buffer);
 		}
 	}
 

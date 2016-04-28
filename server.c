@@ -35,6 +35,38 @@ void stripNonAlpha(char *str)
 	}
 }
 
+void *session_acceptor(void *socketdesc)
+{
+	int sock = *(int*)socketdesc;
+	int read_size;
+	char *message, client_message[2000];
+
+	//send test thing on thread
+	// message = "hello this is the session acceptor, i'll fix your strings for now";
+	// write(sock,message,strlen(message));
+
+	while((read_size = recv(sock, client_message, 2000,0)) > 0)
+	{
+		//get message from client here and make it lowercase
+		client_message[read_size] = '\0';
+		toLowercase(client_message);
+		write(sock, client_message, strlen(client_message));
+		memset(client_message, 0, 2000);
+	}
+
+	if(read_size == 0)
+	{
+		printf("client disconnect\n");
+		fflush(stdout);
+	}
+	else if(read_size == -1)
+	{
+		error("recv failed");
+	}
+
+	return 0;
+}
+
 void tokenizeInput(char *str)
 {
 	const char delims[2] = " ";
@@ -57,8 +89,8 @@ int main(int argc, char *argv[])
 	int newsockfd = -1;	
 	int portno = -1;
 	unsigned int clilen = -1;
-	int n = -1;		
-	char buffer[256];
+	// int n = -1;		
+	// char buffer[256];
 	struct sockaddr_in serverAddressInfo;
 	struct sockaddr_in clientAddressInfo;
 
@@ -107,81 +139,32 @@ int main(int argc, char *argv[])
 			  
 	// set up the server socket to listen for client connections
     listen(sockfd,5);
+    puts("waiting for connections...");
 	
 	// determine the size of a clientAddressInfo struct
     clilen = sizeof(clientAddressInfo);
+    pthread_t thread_id;
+
+    //handle new client connections in threads
 	
-	// block until a client connects, when it does, create a client socket
-    newsockfd = accept(sockfd, (struct sockaddr *)&clientAddressInfo, &clilen);
-	 
-	 
-	 
-	/** If we're here, a client tried to connect **/
-	while(1)
+	while((newsockfd = accept(sockfd, (struct sockaddr*)&clientAddressInfo, &clilen)))
 	{
-		if((n = recv(newsockfd, buffer, 255, 0)) == -1)
+		puts("connection made");
+		char* message;
+
+		if(pthread_create( &thread_id, NULL, session_acceptor, (void*)&newsockfd) < 0)
 		{
-			error("recv");
-		}
-		else if(n == 0)
-		{
-			printf("connection closed");
-			break;
+			error("could not create thread");
 		}
 
-		buffer[n] = '\0';
-		printf("message recieved: %s",buffer);
-
-		stripNonAlpha(buffer);
-		toLowercase(buffer);
-
-		if((send(newsockfd,buffer,strlen(buffer),0)) == -1)
-		{
-			error("message send failure");
-			close(newsockfd);
-			break;
-		}
-
-		printf("reply: %s\n",buffer);
+		puts("handler assigned");
 	}
 
-
-
-
-
-
-
-
-	 
-	// // if the connection blew up for some reason, complain and exit
- //    if (newsockfd < 0) 
-	// {
- //        error("ERROR on accept");
-	// }
+	if(newsockfd < 0)
+	{
+		error("accept failed");
+	}
 	
-	// // zero out the char buffer to receive a client message
- //    bzero(buffer,256);
-	
-	// // try to read from the client socket
- //    n = read(newsockfd,buffer,255);
-	
-	// // if the read from the client blew up, complain and exit
- //    if (n < 0)
-	// {
-	// 	error("ERROR reading from socket");
-	// }
-	
- //    printf("Here is the message: %s\n",buffer);
-	
-	// // try to write to the client socket
- //    n = write(newsockfd,"I got your message",18);
-	
-	// // if the write to the client below up, complain and exit
- //    if (n < 0)
-	// {
-	// 	error("ERROR writing to socket");
-	// }
-    
 	
 	return 0; 
 }

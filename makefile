@@ -8,9 +8,9 @@ sc: server client
 bank: bank.o account.o
 	$(COMPILER) $(CCFLAGS) -o bank bank.o account.o
 server: server.o
-	$(COMPILER) $(CCFLAGS) -o server server.o
+	$(COMPILER) $(CCFLAGS) -lpthread -o server server.o
 client: client.o
-	$(COMPILER) $(CCFLAGS) -o client client.o
+	$(COMPILER) $(CCFLAGS) -lpthread -o client client.o
 server.o: server.c server.h
 	$(COMPILER) $(CCFLAGS) -c server.c
 client.o: client.c client.h
