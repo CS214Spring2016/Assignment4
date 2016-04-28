@@ -1,4 +1,5 @@
 #include "server.h"
+#include "account.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -48,8 +49,10 @@ void *session_acceptor(void *socketdesc)
 	while((read_size = recv(sock, client_message, 2000,0)) > 0)
 	{
 		//get message from client here and make it lowercase
+		//should tokenize in here and maybe call account methods
 		client_message[read_size] = '\0';
 		toLowercase(client_message);
+		stripNonAlpha(client_message);
 		write(sock, client_message, strlen(client_message));
 		memset(client_message, 0, 2000);
 	}
