@@ -11,6 +11,12 @@ struct account_
 };
 typedef struct account_ Account;
 
+struct bank_
+{
+	Account *accounts[20];
+};
+typedef struct bank_ Bank;
+
 Account *createAccount(char* name);
 void creditBalance(Account *acc, float amount);
 void debitBalance(Account *acc, float amount);

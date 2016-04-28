@@ -82,17 +82,29 @@ int main(int argc, char *argv[])
 	
 	// try to connect to the server using our blank socket and the address info struct 
 	//   if it doesn't work, complain and exit
-    if (connect(sockfd,(struct sockaddr *)&serverAddressInfo,sizeof(serverAddressInfo)) < 0) 
+	int connectStatus;
+	connectStatus = connect(sockfd,(struct sockaddr *)&serverAddressInfo,sizeof(serverAddressInfo));
+    
+    while(connectStatus != 0) 
 	{
-        error("ERROR connecting");
+        close(sockfd);
+        printf("Connection failed, attempting to reconnect in 3 seconds...\n");
+        sleep(3);
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        connectStatus = connect(sockfd,(struct sockaddr *)&serverAddressInfo,sizeof(serverAddressInfo));
 	}	
 	
+	printf("Connected to server %s, on port number: %d\n", argv[1], portno);
 	
 	
 	/** If we're here, we're connected to the server .. w00t!  **/
 
+
+	//we're connected in this loop, things the client does go in here
+	//idk when it ends honestly i just sigint it
 	while(1)
 	{
+		//printf("Connected to server %s, on port number: %d\n", argv[1], portno);
 		printf("Enter command for server: ");
 		bzero(buffer,256);
 		fgets(buffer,255,stdin);
@@ -104,7 +116,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			printf("Message: %s",buffer);
+			//printf("Command: %s",buffer);
 			n = recv(sockfd,buffer,sizeof(buffer),0);
 			if(n <= 0)
 			{
@@ -114,48 +126,11 @@ int main(int argc, char *argv[])
 			}
 
 			buffer[n] = '\0';
-			printf("server: %s\n\n", buffer);
+			printf("Server Reply: %s\n\n", buffer);
 		}
 	}
 
 	close(sockfd);
-
-
-
-
-
-	
- //    printf("Please enter a command: ");
-	
-	// // zero out the message buffer
- //    bzero(buffer,256);
-
-	// // get a message from the client
- //    fgets(buffer,255,stdin);
-    
-	// // try to write it out to the server
-	// n = write(sockfd,buffer,strlen(buffer));
-	
-	// // if we couldn't write to the server for some reason, complain and exit
- //    if (n < 0)
-	// {
- //         error("ERROR writing to socket");
- //    }
-	
-	// // sent message to the server, zero the buffer back out to read the server's response
-	// bzero(buffer,256);
-
-	// // read a message from the server into the buffer
- //    n = read(sockfd,buffer,255);
-	
-	// // if we couldn't read from the server for some reason, complain and exit
- //    if (n < 0)
-	// {
- //         error("ERROR reading from socket");
-	// }
-
-	// // print out server's message
- //    printf("%s\n",buffer);
 
 
     return 0;

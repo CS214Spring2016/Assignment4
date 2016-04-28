@@ -17,6 +17,15 @@ void error(char* msg)
 	exit(0);
 }
 
+
+/*---------------------------------------------------STRING PARSING STUFF----------------------------------------------*/
+int parseCommand(char *command)
+{
+	//7 commands: open, start, credit, debit, balance, finish, exit
+	//char* firstLetter;
+	return 0;
+}
+
 void toLowercase(char *str)
 {
 	for(int i = 0; i<strlen(str); i++)
@@ -36,11 +45,28 @@ void stripNonAlpha(char *str)
 	}
 }
 
+/*--------------------------------------------ACCOUNT HANDLING THINGS GO HERE-------------------------------------------------------*/
+void *printInfo(void *threadid)
+{
+    long tid;
+    tid = (long)threadid;
+    do
+    {
+        sleep(20);
+        printf("i'm printing what should be account information\n");
+    }
+    while(1);
+
+    pthread_exit(NULL);
+}
+
+
+/*-------------------------------------------------------SESSION ACCEPTOR--------------------------------------------------------------------*/
 void *session_acceptor(void *socketdesc)
 {
 	int sock = *(int*)socketdesc;
 	int read_size;
-	char *message, client_message[2000];
+	char client_message[2000];
 
 	//send test thing on thread
 	// message = "hello this is the session acceptor, i'll fix your strings for now";
@@ -86,16 +112,21 @@ void tokenizeInput(char *str)
 	}
 }
 
+
+
+/*------------------------------------------------------------MAIN METHOD-----------------------------------------------*/
+
 int main(int argc, char *argv[])
 {
 	int sockfd = -1;
 	int newsockfd = -1;	
 	int portno = -1;
 	unsigned int clilen = -1;
-	// int n = -1;		
-	// char buffer[256];
 	struct sockaddr_in serverAddressInfo;
 	struct sockaddr_in clientAddressInfo;
+	long infoThreadNum;
+
+	//TODO: find a place to put the accounts
 
 
     if (argc < 2)
@@ -104,12 +135,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    /** If the user gave enough arguments, try to use them to get a port number and address **/
-
-	// convert the text representation of the port number given by the user to an int  
+	/*
+	Get user port input, make into number
+	Attempt to open socket
+	If socket doesnt open right throw error and exit
+	*/ 
 	portno = atoi(argv[1]);
-	 
-	// try to build a socket .. if it doesn't work, complain and exit
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
 	{
@@ -117,23 +148,23 @@ int main(int argc, char *argv[])
 	}
 
 	/** We now have the port to build our server socket on .. time to set up the address struct **/
-
-	// zero out the socket address info struct .. always initialize!
+	/*
+	Setting up address struct
+	zero out socket info, init first
+	set remote port with serveraddressinfo
+	set flags to indicate type of address using and willing to communicate with
+	*/
 	bzero((char *) &serverAddressInfo, sizeof(serverAddressInfo));
-
-	// set the remote port .. translate from a 'normal' int to a super-special 'network-port-int'
-	serverAddressInfo.sin_port = htons(portno);
-	 
-	// set a flag to indicate the type of network address we'll be using  
+	serverAddressInfo.sin_port = htons(portno); 
+	//address type we use
     serverAddressInfo.sin_family = AF_INET;
-	
-	// set a flag to indicate the type of network address we'll be willing to accept connections from
+    //address type we get 
     serverAddressInfo.sin_addr.s_addr = INADDR_ANY;
      
 	 
-	 
-	 /** We have an address struct and a socket .. time to build up the server socket **/
-     
+	 /*bind server socket and listen for connections,
+	 also write to console that we're listening for connections
+	 */
     // bind the server socket to a specific local port, so the client has a target to connect to      
     if (bind(sockfd, (struct sockaddr *) &serverAddressInfo, sizeof(serverAddressInfo)) < 0)
 	{
@@ -146,21 +177,24 @@ int main(int argc, char *argv[])
 	
 	// determine the size of a clientAddressInfo struct
     clilen = sizeof(clientAddressInfo);
-    pthread_t thread_id;
+    pthread_t acceptor_thread;
+    pthread_t infoPrint_thread;
+
+    pthread_create(&infoPrint_thread, NULL, printInfo, (void*)&infoThreadNum);
 
     //handle new client connections in threads
+    //keep connection open and hand out new threads to every connection
 	
 	while((newsockfd = accept(sockfd, (struct sockaddr*)&clientAddressInfo, &clilen)))
 	{
 		puts("connection made");
-		char* message;
 
-		if(pthread_create( &thread_id, NULL, session_acceptor, (void*)&newsockfd) < 0)
+		if(pthread_create( &acceptor_thread, NULL, session_acceptor, (void*)&newsockfd) < 0)
 		{
 			error("could not create thread");
 		}
 
-		puts("handler assigned");
+		puts("session opened with client");
 	}
 
 	if(newsockfd < 0)
