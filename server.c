@@ -45,7 +45,7 @@ void stripNonAlpha(char *str)
 	}
 }
 
-/*--------------------------------------------ACCOUNT HANDLING THINGS GO HERE-------------------------------------------------------*/
+/*--------------------------------------------ACCOUNT HANDLING THINGS GO HERE-----------------------------------------------*/
 void *printInfo(void *threadid)
 {
     long tid;
@@ -61,16 +61,12 @@ void *printInfo(void *threadid)
 }
 
 
-/*-------------------------------------------------------SESSION ACCEPTOR--------------------------------------------------------------------*/
+/*-------------------------------------------------------SESSION ACCEPTOR---------------------------------------------------*/
 void *session_acceptor(void *socketdesc)
 {
 	int sock = *(int*)socketdesc;
 	int read_size;
 	char client_message[2000];
-
-	//send test thing on thread
-	// message = "hello this is the session acceptor, i'll fix your strings for now";
-	// write(sock,message,strlen(message));
 
 	while((read_size = recv(sock, client_message, 2000,0)) > 0)
 	{
@@ -114,7 +110,7 @@ void tokenizeInput(char *str)
 
 
 
-/*------------------------------------------------------------MAIN METHOD-----------------------------------------------*/
+/*------------------------------------------------------------MAIN METHOD--------------------------------------------------*/
 
 int main(int argc, char *argv[])
 {
