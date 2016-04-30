@@ -18,6 +18,7 @@ void error(char* msg)
 	exit(0);
 }
 
+
 void toLowercase(char *str)
 {
 	for(int i = 0; i<strlen(str); i++)
@@ -37,24 +38,41 @@ void stripNonAlpha(char *str)
 	}
 }
 
-char* tokenizeInput(char *str)
+void removeSpaces(char* source)
 {
-	const char delims[2] = " ";
-	char *token;
-	char *newString;
-	newString = malloc(sizeof(token));
+  char* i = source;
+  char* j = source;
+  while(*j != 0)
+  {
+    *i = *j++;
+    if(*i != ' ')
+      i++;
+  }
+  *i = 0;
+}
 
-	//first token
-	token = strtok(str,delims);
+void checkCommands(char *input)
+{
+	const char *dict[7];
+	char *ptr;
+	int pos;
+	dict[0] = "open";
+	dict[1] = "start";
+	dict[2] = "credit";
+	dict[3] = "debit";
+	dict[4] = "balance";
+	dict[5] = "finish";
+	dict[6] = "exit";
 
-
-	while(token != NULL)
+	for(int i = 0; i < 7; i++)
 	{
-		strcat(newString,token);
-		token = strtok(NULL,delims);
+		if(strstr(input,dict[i]) != NULL)
+		{
+			ptr = strstr(input,dict[i]);
+			pos = ptr - input;
+			printf("found keyword: %s at location %d\n", dict[i], pos);
+		}
 	}
-
-	return newString;
 }
 
 void parseCommand(char* str)
@@ -68,20 +86,18 @@ void *getFromServer(void *socketdesc)
 {	
 	//just want to recv here
 	//no writing i dont think
-	int socket = *(int*)socketdesc;
-	char *ping = "ping";
-	int sentinel;
+	//int sock = *(int*)socketdesc;
+	//int read_size;
+	//char server_message[2000];
 
-	sentinel = write(socket, ping, strlen(ping));
+	//recv(sock, server_message, 2000,0);
+	//printf("Server: %s\n", server_message);
 
-	while(sentinel != -1)
+	while(1)
 	{
-		sentinel = write(socket, ping, strlen(ping));
-		//printf("this should be happening a lot");
 	}
 
-	//shouldnt get here unless write fails
-	return (void*)99;
+	return 0;
 }
 
 

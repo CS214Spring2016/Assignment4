@@ -62,27 +62,10 @@ void *printInfo()
 void *accepted_connection(void *socketdesc)
 {
 	int sock = *(int*)socketdesc;
-	int read_size;
-	char client_message[2000];
-
-	while((read_size = recv(sock, client_message, 2000,0)) > 0)
-	{
-		//get message from client here and make it lowercase
-		//should tokenize in here and maybe call account methods
-		client_message[read_size] = '\0';
-		write(sock, client_message, strlen(client_message));
-		memset(client_message, 0, 2000);
-	}
-
-	if(read_size == 0)
-	{
-		printf("client disconnect\n");
-		fflush(stdout);
-	}
-	else if(read_size == -1)
-	{
-		error("recv failed");
-	}
+	char *message = "Hello there";
+		
+	write(sock, message, strlen(message));
+	memset(message, 0, 2000);
 
 	printf("client closed i guess");
 
