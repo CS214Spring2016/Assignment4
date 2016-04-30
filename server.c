@@ -9,6 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <pthread.h>
+#define PORTNUM  4200; //blaze it
 
 //fun error method #extensible #objectoriented
 void error(char* msg)
@@ -19,31 +20,7 @@ void error(char* msg)
 
 
 /*---------------------------------------------------STRING PARSING STUFF----------------------------------------------*/
-int parseCommand(char *command)
-{
-	//7 commands: open, start, credit, debit, balance, finish, exit
-	//char* firstLetter;
-	return 0;
-}
 
-void toLowercase(char *str)
-{
-	for(int i = 0; i<strlen(str); i++)
-	{
-		str[i] = tolower(str[i]);
-	}
-}
-
-void stripNonAlpha(char *str)
-{
-	for(int i = 0; i < strlen(str); i++)
-	{
-		if(isalnum(str[i]) == 0)
-		{
-			str[i] = ' ';
-		}
-	}
-}
 
 /*--------------------------------------------ACCOUNT HANDLING THINGS GO HERE-----------------------------------------------*/
 void *printInfo(void *threadid)
@@ -62,7 +39,13 @@ void *printInfo(void *threadid)
 
 
 /*-------------------------------------------------------SESSION ACCEPTOR---------------------------------------------------*/
-void *session_acceptor(void *socketdesc)
+
+//what gets called when accept happens
+//this just wants to keep the connection alive i think
+//no need to send anything visible to the client?
+//idk man
+//gonna try tokenizing client side
+void *accepted_connection(void *socketdesc)
 {
 	int sock = *(int*)socketdesc;
 	int read_size;
@@ -73,8 +56,6 @@ void *session_acceptor(void *socketdesc)
 		//get message from client here and make it lowercase
 		//should tokenize in here and maybe call account methods
 		client_message[read_size] = '\0';
-		toLowercase(client_message);
-		stripNonAlpha(client_message);
 		write(sock, client_message, strlen(client_message));
 		memset(client_message, 0, 2000);
 	}
@@ -89,26 +70,10 @@ void *session_acceptor(void *socketdesc)
 		error("recv failed");
 	}
 
+	printf("client closed i guess");
+
 	return 0;
 }
-
-void tokenizeInput(char *str)
-{
-	const char delims[2] = " ";
-	char *token;
-
-	//first token
-	token = strtok(str,delims);
-
-
-	while(token != NULL)
-	{
-		printf("token: %s",token);
-		token = strtok(NULL,delims);
-	}
-}
-
-
 
 /*------------------------------------------------------------MAIN METHOD--------------------------------------------------*/
 
@@ -125,18 +90,18 @@ int main(int argc, char *argv[])
 	//TODO: find a place to put the accounts
 
 
-    if (argc < 2)
-	{
-        fprintf(stderr,"ERROR, no port provided\n");
-        exit(1);
-    }
+ //    if (argc < 2)
+	// {
+ //        fprintf(stderr,"ERROR, no port provided\n");
+ //        exit(1);
+ //    }
 
 	/*
 	Get user port input, make into number
 	Attempt to open socket
 	If socket doesnt open right throw error and exit
 	*/ 
-	portno = atoi(argv[1]);
+	portno = PORTNUM;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
 	{
@@ -173,7 +138,7 @@ int main(int argc, char *argv[])
 	
 	// determine the size of a clientAddressInfo struct
     clilen = sizeof(clientAddressInfo);
-    pthread_t acceptor_thread;
+    pthread_t accept_thread;
     pthread_t infoPrint_thread;
 
     pthread_create(&infoPrint_thread, NULL, printInfo, (void*)&infoThreadNum);
@@ -181,11 +146,13 @@ int main(int argc, char *argv[])
     //handle new client connections in threads
     //keep connection open and hand out new threads to every connection
 	
+	//apparently this causes a race condition in weird circumstances
+	//i think we can fix this later, fuck threads rn
 	while((newsockfd = accept(sockfd, (struct sockaddr*)&clientAddressInfo, &clilen)))
 	{
 		puts("connection made");
 
-		if(pthread_create( &acceptor_thread, NULL, session_acceptor, (void*)&newsockfd) < 0)
+		if(pthread_create( &accept_thread, NULL, accepted_connection, (void*)&newsockfd) < 0)
 		{
 			error("could not create thread");
 		}
@@ -197,7 +164,6 @@ int main(int argc, char *argv[])
 	{
 		error("accept failed");
 	}
-	
-	
+		
 	return 0; 
 }
