@@ -1,12 +1,11 @@
 COMPILER = gcc
 CCFLAGS = -Wall -g
 
-all: bank server client
-sc: server client
+all: server client
+serv: server
+cli: client
 
 
-bank: bank.o account.o
-	$(COMPILER) $(CCFLAGS) -o bank bank.o account.o
 server: server.o
 	$(COMPILER) $(CCFLAGS) -lpthread -o server server.o
 client: client.o
