@@ -9,6 +9,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <ctype.h>
+#define PORTNUM		4200; //blaze it part 
 
 //dope error stuff
 void error(char* msg)
@@ -95,8 +96,8 @@ int main(int argc, char *argv[])
 	// Declare initial vars
     int sockfd = -1;							// file descriptor for our socket
 	int portno = -1;							// server port to connect to
-	int n = -1;									// utility variable - for monitoring reading/writing from/to the socket
-	char byte[4];							// char array to store data going to and coming from the server
+	//int n = -1;									// utility variable - for monitoring reading/writing from/to the socket
+	//char byte[4];							// char array to store data going to and coming from the server
     struct sockaddr_in serverAddressInfo;		// Super-special secret C struct that holds address info for building our socket
     struct hostent *serverIPAddress;
     //long t1, t2;
@@ -106,9 +107,9 @@ int main(int argc, char *argv[])
 	
 	
 	// If the user didn't enter enough arguments, complain and exit
-    if (argc < 3)
+    if (argc < 2)
 	{
-       fprintf(stderr,"usage %s hostname port\n", argv[0]);
+       fprintf(stderr,"usage %s hostname", argv[0]);
        exit(0);
     }
 	
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
 	/** If the user gave enough arguments, try to use them to get a port number and address **/
 
 	// convert the text representation of the port number given by the user to an int
-	portno = atoi(argv[2]);
+	portno = PORTNUM;
 	
 	// look up the IP address that matches up with the name given - the name given might
 	//    BE an IP address, which is fine, and store it in the 'serverIPAddress' struct
