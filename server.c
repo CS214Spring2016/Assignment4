@@ -9,12 +9,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <pthread.h>
-#define PORTNUM		4200; //blaze it
+#define PORTNUM	4200; //blaze it
 
 //fun error method #extensible #objectoriented
 void error(char* msg)
 {
 	perror(msg);
+	puts("Yea I hear ya buddy");
 	exit(0);
 }
 
@@ -61,13 +62,19 @@ void *printInfo()
 //okay
 void *accepted_connection(void *socketdesc)
 {
+	puts("about to write\n");
+	int incomingmessagesize;
 	int sock = *(int*)socketdesc;
-	char *message = "Hello there";
-		
+	char inmessage[256];
+	char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust\n";
+//	printf("about to write");
 	write(sock, message, strlen(message));
-	memset(message, 0, 2000);
-
-	printf("client closed i guess");
+	memset(inmessage, 0, 256);
+	while((incomingmessagesize = recv(sock, inmessage,256,0))>0){
+		puts(inmessage);
+	}
+//
+	puts("Client Disconnected");
 
 	return 0;
 }
@@ -77,12 +84,19 @@ void *session_acceptor()
 	int sockfd = -1;
 	int portno = -1;
 	int cliSocket = -1;
+
 	unsigned int cliLen = -1;
 	struct sockaddr_in serverAddressInfo;
 	struct sockaddr_in clientAddressInfo;
 	
 	portno = PORTNUM;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	//problem with ending, socket reuse
+	int iSetOption = 1;
+	if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &iSetOption, sizeof(iSetOption))<0)
+		puts("couldnt change options");
+	//end problem
+
     if (sockfd < 0)
 	{
        error("ERROR opening socket");
@@ -113,8 +127,8 @@ void *session_acceptor()
 
 	while((cliSocket = accept(sockfd, (struct sockaddr*)&clientAddressInfo, &cliLen)))
 	{
-		puts("Connection made with client");
-		if(pthread_create(&client_thread, &cliThreadAttr, accepted_connection, (void*)&cliSocket) < 0)
+		puts("Announcement: Connection made with client");
+		if(pthread_create(&client_thread, &cliThreadAttr, accepted_connection, &cliSocket) < 0)
 		{
 			puts("unable to create accepted client thread");
 		}
@@ -133,8 +147,11 @@ void *session_acceptor()
 
 /*------------------------------------------------------------MAIN METHOD--------------------------------------------------*/
 
+
 int main(int argc, char *argv[])
 {
+
+
 	// int sockfd = -1;
 	// int portno = -1;
 	// struct sockaddr_in serverAddressInfo;

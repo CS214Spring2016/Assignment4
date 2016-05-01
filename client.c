@@ -82,33 +82,40 @@ void parseCommand(char* str)
 
 /*--------------------------------------------------------------INPUT AND SERVER COMMUNICATION----------------------------*/
 
-void *getFromServer(void *socketdesc)
+void *getFromServer(void *socketdesc)//this is the reader thread
 {	
-	//just want to recv here
-	//no writing i dont think
-	//int sock = *(int*)socketdesc;
-	//int read_size;
-	//char server_message[2000];
 
-	//recv(sock, server_message, 2000,0);
-	//printf("Server: %s\n", server_message);
-
-	while(1)
-	{
+	int incomingmessagesize;
+	int sock = *(int*)socketdesc;
+	char inmessage[256];
+	//char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust\n";
+//	printf("about to write");
+	//write(sock, message, strlen(message));
+	memset(inmessage, 0, 256);
+	while((incomingmessagesize = recv(sock, inmessage,256,0))>0){
+		puts(inmessage);
 	}
+	puts("Server Disconnected");
+//
+//	printf("client closed i guess");
 
 	return 0;
 }
 
 
 
-void *sendToServer(void *socketdesc)
+void *sendToServer(void *socketdesc)// this is the writer thread
 {
-	// int socket = *(int*)socketdesc;
-	// int read_size;
-	// char client_message[256];
-	return 0;
 
+	int outgoingmessagesize = 265;
+	int sock = *(int*)socketdesc;
+	char outmessage[outgoingmessagesize];
+	memset(outmessage, 0, outgoingmessagesize);
+	while(fgets(outmessage,outgoingmessagesize,stdin)){
+		write(sock, outmessage, outgoingmessagesize);
+	}
+
+		return 0;
 }
 
 
@@ -173,7 +180,7 @@ int main(int argc, char *argv[])
         connectStatus = connect(sockfd,(struct sockaddr *)&serverAddressInfo,sizeof(serverAddressInfo));
 	}	
 	
-	printf("Connected to server %s, on port number: %d\n", argv[1], portno);
+	printf("Announcement: Connected to server %s, on port number: %d\n", argv[1], portno);
 
 	if(pthread_create(&server_thread, NULL, getFromServer, (void*)&sockfd) < 0)
 	{
