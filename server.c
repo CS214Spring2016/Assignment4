@@ -47,7 +47,7 @@ void *printInfo()
     do
     {
         sleep(20);
-        puts("i'm printing what should be account information\n");
+        puts("i'm printing what should be account information");
     }
     while(1);
 
@@ -62,18 +62,16 @@ void *printInfo()
 //okay
 void *accepted_connection(void *socketdesc)
 {
-	puts("about to write\n");
 	int incomingmessagesize;
 	int sock = *(int*)socketdesc;
 	char inmessage[256];
-	char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust\n";
-//	printf("about to write");
+	char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust";
 	write(sock, message, strlen(message));
 	memset(inmessage, 0, 256);
 	while((incomingmessagesize = recv(sock, inmessage,256,0))>0){
 		puts(inmessage);
 	}
-//
+
 	puts("Client Disconnected");
 
 	return 0;
@@ -95,7 +93,6 @@ void *session_acceptor()
 	int iSetOption = 1;
 	if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &iSetOption, sizeof(iSetOption))<0)
 		puts("couldnt change options");
-	//end problem
 
     if (sockfd < 0)
 	{

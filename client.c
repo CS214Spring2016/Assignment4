@@ -9,7 +9,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <ctype.h>
-#define PORTNUM		4200; //blaze it part 
+#define PORTNUM		4200; //blaze it part 2
 
 //dope error stuff
 void error(char* msg)
@@ -88,16 +88,11 @@ void *getFromServer(void *socketdesc)//this is the reader thread
 	int incomingmessagesize;
 	int sock = *(int*)socketdesc;
 	char inmessage[256];
-	//char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust\n";
-//	printf("about to write");
-	//write(sock, message, strlen(message));
 	memset(inmessage, 0, 256);
 	while((incomingmessagesize = recv(sock, inmessage,256,0))>0){
 		puts(inmessage);
 	}
 	puts("Server Disconnected");
-//
-//	printf("client closed i guess");
 
 	return 0;
 }
