@@ -33,7 +33,7 @@ void getCommands(char *input, void *socketdesc)
 	char* ptr;
 	char argument[100];
 	int len;
-	int keyword;
+	int keyword = 0;
 	Account *temp;
 
 
@@ -128,11 +128,13 @@ void *accepted_connection(void *socketdesc)
 	//this is where we get messages from the client, inmessage is the command
 	while(1)
 	{
-		if((incomingmessagesize = recv(sock, inmessage,256,0)) != 0)
+		if((incomingmessagesize = recv(sock, inmessage,256, MSG_WAITALL)) != 0)
 		{
 			test = inmessage;
+			puts("in the if loop");
 		}
 		getCommands(test, socketdesc);
+		bzero(test,strlen(test));
 	}
 
 
