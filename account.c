@@ -3,9 +3,37 @@
 #include <string.h>
 #include <stdio.h>
 
+Bank *openBank()
+{
+	return (Bank *)calloc(1,sizeof(struct bank_));
+}
+
+BankPtr *createBankPtr()
+{
+	BankPtr *ptr = (BankPtr*)calloc(1,sizeof(struct BankPtr));
+
+	if(ptr == NULL)
+	{
+		return NULL;
+	}
+
+	ptr->bank = openBank();
+	ptr->bank->numAccounts = 0;
+
+	if(ptr->bank != NULL)
+	{
+		return ptr;
+	}
+	else
+	{
+		free(ptr);
+		return NULL;
+	}
+}
+
 Account *createAccount(char* name)
 {
-	Account* account = calloc(1,sizeof(struct account_));
+	Account* account = (Account *)malloc(sizeof(struct account_));
 	if(strlen(name) >= 100)
 	{
 		name[99] = '\0';
@@ -22,7 +50,6 @@ Account *createAccount(char* name)
 		return NULL;
 	}
 
-	return 0;
 }
 
 
@@ -42,6 +69,23 @@ void debitBalance(Account *acc, float amount)
 	{
 		acc->acctBalance -= amount;
 	}
+}
+
+void insert(Bank *bank, Account *account)
+{
+	Account *acc = account;
+	int location = bank->numAccounts;
+	if((Bank *)(bank) == NULL)
+	{
+		printf("bank null\n");
+	}
+	else
+	{
+		bank->bankAccount[location] = acc;
+		bank->numAccounts++;
+	}
+
+	return;
 }
 
 
@@ -75,10 +119,93 @@ void flagInactive(Account *acc)
 	acc->isActive = 0;
 }
 
-void printStatus(Account *account)
+char *reportBalance(Account *acc)
 {
-	printf("Account Name: %s\n", account->acctName);
-	printf("Account Balance: %.2f\n", account->acctBalance);
-	printf("Account active flag: %d\n",account->isActive);
+	char *toReturn = calloc(1,20);
+	float bal;
+	if(acc == NULL)
+	{
+		char *message = "Null balance. Please call your bank's local branch.";
+		return message;
+	}
+	else
+	{
+		bal = acc->acctBalance;
+		snprintf(toReturn, 20, "%.2f", bal);
+		return (char*)toReturn;	
+	}
+}
+
+void findAccount(BankPtr *bPtr, char* name)
+{
+	Bank *bank;
+	Account *acct;
+	for(int i = 0; i < 20; i++)
+	{
+		bank = bPtr->bank;
+		if((Bank *)(bank) == NULL)
+		{
+			printf("Bank pointer bank null\n");
+		}
+		else
+		{
+			acct = bank->bankAccount[i];
+			if((Account *)(acct) == NULL)
+			{
+				printf("No accounts to search.\n");
+			}
+			else
+			{
+				if(strcmp((acct->acctName), name) == 0)
+				{
+					acct->isActive = 1;
+					printf("account found and marked active\n");
+				}
+				else
+				{
+					printf("no account by that name found\n");
+				}
+			}
+		}
+
+	}
+
+	return;
+}
+
+void printStatus(BankPtr *bPtr)
+{	
+	Bank *bank;
+	Account *acct;
+	char *aName;
+	float aBal;
+	int aAct;
+	for(int i = 0; i < 20; i++)
+	{
+		bank = bPtr->bank;
+		if((Bank *)(bank) == NULL)
+		{
+			printf("Bank pointer bank null\n");
+		}
+		else
+		{
+			acct = bank->bankAccount[i];
+			if((Account *)(acct) == NULL)
+			{
+				//printf("No information for this account\n");
+			}
+			else
+			{
+				aName = acct->acctName;
+				aBal = acct->acctBalance;
+				aAct = acct->isActive;
+				printf("Account Name: %s\n",acct->acctName);
+				printf("Account Balance: %.2f\n", acct->acctBalance);
+				printf("Active Flag: %d\n", acct->isActive);
+			}
+		}
+	}
+
+	return;
 }
 

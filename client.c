@@ -51,45 +51,26 @@ void removeSpaces(char* source)
   *i = 0;
 }
 
-void checkCommands(char *input)
+void fixString(char *source)
 {
-	const char *dict[7];
-	char *ptr;
-	int pos;
-	dict[0] = "open";
-	dict[1] = "start";
-	dict[2] = "credit";
-	dict[3] = "debit";
-	dict[4] = "balance";
-	dict[5] = "finish";
-	dict[6] = "exit";
-
-	for(int i = 0; i < 7; i++)
-	{
-		if(strstr(input,dict[i]) != NULL)
-		{
-			ptr = strstr(input,dict[i]);
-			pos = ptr - input;
-			printf("found keyword: %s at location %d\n", dict[i], pos);
-		}
-	}
+	toLowercase(source);
+	stripNonAlpha(source);
+	removeSpaces(source);
 }
 
-void parseCommand(char* str)
-{
-	printf("parse command here\n");
-}
+
+
 
 /*--------------------------------------------------------------INPUT AND SERVER COMMUNICATION----------------------------*/
 
 void *getFromServer(void *socketdesc)//this is the reader thread
 {	
-
 	int incomingmessagesize;
 	int sock = *(int*)socketdesc;
 	char inmessage[256];
-	memset(inmessage, 0, 256);
-	while((incomingmessagesize = recv(sock, inmessage,256,0))>0){
+	//memset(inmessage, 0, 256);
+	while((incomingmessagesize = recv(sock, inmessage,256, 0))>0)
+	{
 		puts(inmessage);
 	}
 	puts("Server Disconnected");
@@ -107,6 +88,7 @@ void *sendToServer(void *socketdesc)// this is the writer thread
 	char outmessage[outgoingmessagesize];
 	memset(outmessage, 0, outgoingmessagesize);
 	while(fgets(outmessage,outgoingmessagesize,stdin)){
+		fixString(outmessage);
 		write(sock, outmessage, outgoingmessagesize);
 	}
 

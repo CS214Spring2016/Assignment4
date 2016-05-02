@@ -11,6 +11,10 @@
 #include <pthread.h>
 #define PORTNUM	4200; //blaze it
 
+
+
+BankPtr *bankPtr;
+
 //fun error method #extensible #objectoriented
 void error(char* msg)
 {
@@ -22,32 +26,79 @@ void error(char* msg)
 
 /*---------------------------------------------------STRING PARSING STUFF----------------------------------------------*/
 
-void toLowercase(char *str)
+void getCommands(char *input, void *socketdesc)
 {
-	for(int i = 0; i<strlen(str); i++)
-	{
-		str[i] = tolower(str[i]);
-	}
-}
+	// int sock = *(int*)socketdesc;
+	// char *reply = calloc(1,100);
+	const char *dict[7];
+	char* ptr;
+	char argument[100];
+	int len;
+	Account *temp;
+	dict[0] = "open";
+	dict[1] = "start";
+	dict[2] = "credit";
+	dict[3] = "debit";
+	dict[4] = "balance";
+	dict[5] = "finish";
+	dict[6] = "exit";
 
-void stripNonAlpha(char *str)
-{
-	for(int i = 0; i < strlen(str); i++)
+	for(int i = 0; i < 7; i++)
 	{
-		if(isalnum(str[i]) == 0)
+		if(strstr(input,dict[i]) != NULL)
 		{
-			str[i] = ' ';
+			ptr = strstr(input,dict[i]);
+			len = strlen(dict[i]);
+			memset(argument,0,100);
+			strncpy(argument, &input[len],strlen(input));
+			switch(i)
+			{
+				//open
+				case 0:
+					temp = createAccount(argument);
+					temp->isActive = 1;
+					insert(bankPtr->bank, temp);
+					free(temp);
+					break;
+				case 1:
+					findAccount(bankPtr, argument);
+					break;
+				case 2:
+					printf("credit");
+					break;
+				case 3:
+					printf("debit");
+					break;
+				case 4:
+					printf("balance");
+					break;
+				case 5:
+					printf("finish");
+					break;
+				case 6:
+					printf("exit");
+					break;	
+				default:
+					printf("fell through");
+			}
+			return;
 		}
+		return;
 	}
+	return;
+
 }
 
-/*--------------------------------------------ACCOUNT HANDLING THINGS GO HERE-----------------------------------------------*/
+
+/*--------------------------------------------ACCOUNT PRINTING THINGS GO HERE-----------------------------------------------*/
 void *printInfo()
 {
     do
     {
-        sleep(20);
-        puts("i'm printing what should be account information");
+        sleep(5);
+        printStatus(bankPtr);
+        puts("END OF REPORT");
+
     }
     while(1);
 
@@ -67,13 +118,17 @@ void *accepted_connection(void *socketdesc)
 	char inmessage[256];
 	char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust";
 	write(sock, message, strlen(message));
-	memset(inmessage, 0, 256);
+	//memset(message, 0, 255);
+
+	//this is where we get messages from the client, inmessage is the command
 	while((incomingmessagesize = recv(sock, inmessage,256,0))>0){
-		puts(inmessage);
+		//get commands takes a socket for writeback to client
+		getCommands(inmessage, socketdesc);
 	}
 
 	puts("Client Disconnected");
 
+	memset(message, 0, 255);
 	return 0;
 }
 
@@ -148,10 +203,7 @@ void *session_acceptor()
 int main(int argc, char *argv[])
 {
 
-
-	// int sockfd = -1;
-	// int portno = -1;
-	// struct sockaddr_in serverAddressInfo;
+	bankPtr = createBankPtr();
 
 	//thread stuff instantiation
 	//handles, arguments, attributes, statuses
@@ -190,6 +242,7 @@ int main(int argc, char *argv[])
 	//    the value of pthread_exit() called in each
 	pthread_join(acceptor_thread, &acceptorStatus);
 	pthread_join(info_thread, &infoStatus);
+	
 
 		
 	return 0; 
