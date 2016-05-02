@@ -36,7 +36,7 @@ void destroyAccount(Account *acc);
 void flagActive(Account *acc);
 void flagInactive(Account *acc);
 void printStatus(BankPtr *bPtr);
-void findAccount(BankPtr *bPtr, char* name);
+Account *findAccount(BankPtr *bPtr, char* name);
 void insert(Bank *bank, Account *account);
 
 

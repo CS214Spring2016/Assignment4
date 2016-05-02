@@ -83,14 +83,15 @@ void *getFromServer(void *socketdesc)//this is the reader thread
 void *sendToServer(void *socketdesc)// this is the writer thread
 {
 
-	int outgoingmessagesize = 265;
 	int sock = *(int*)socketdesc;
-	char outmessage[outgoingmessagesize];
+	char outmessage[[256];
 	memset(outmessage, 0, outgoingmessagesize);
 	while(fgets(outmessage,outgoingmessagesize,stdin)){
 		fixString(outmessage);
 		write(sock, outmessage, outgoingmessagesize);
 		sleep(2);
+		fflush(stdin);
+		fflush(stdout);
 	}
 
 	return 0;

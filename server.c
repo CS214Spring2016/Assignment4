@@ -14,7 +14,7 @@
 
 
 BankPtr *bankPtr;
-char *dict[7] = {"open","start","credit","debit","balance","finish","exit"};
+char *dict[8] = {" ","open","start","credit","debit","balance","finish","exit"};
 
 //fun error method #extensible #objectoriented
 void error(char* msg)
@@ -39,20 +39,20 @@ void getCommands(char *input, void *socketdesc)
 	char argument[100];
 	int len;
 	int keyword = 0;
-	Account *temp;
-	Account activeAccount;
+	int i;
+	Account *activeAccount;
 
 
 
-	for(int i = 0; i < 7; i++)
+	for(i = 0; i < 8; i++)
 	{
 		if(strstr(input,dict[i]) != NULL)
 		{
 			ptr = strstr(input,dict[i]);
 			len = strlen(dict[i]);
-			memset(argument,0,100);
 			strncpy(argument, &input[len],strlen(input));
-			keyword = i;	
+			keyword = i;
+			break;	
 		}
 	}
 
@@ -62,21 +62,31 @@ void getCommands(char *input, void *socketdesc)
 			// free(temp);
 			// send(replysock, "Account Opened.", 20,0);
 
-	if(keyword == 0)
+	if(keyword == 1)
 	{
-		temp = createAccount(argument);
-		temp->isActive = 1;
-		insert(bankPtr->bank, temp);
-		free(temp);
+		insert(bankPtr->bank, createAccount(argument));
 		send(replysock, "Account Opened.", 20,0);
-		activeAccount = temp;
+		//free(keyword);
 	}
-	else if(keyword == 1)
+	else if(keyword == 2)
 	{
 		activeAccount  = findAccount(bankPtr, argument);
-		
-
+		//free(keyword);
 	}
+	else if(keyword == 7)
+	{
+		puts("Client Disconnected");
+		write(replysock,"Exiting session...",30);
+		close(replysock);
+		pthread_exit(NULL);
+		//free(keyword);
+	}
+	else
+	{
+		return;
+	}
+
+	return;
 }
 
 
@@ -123,6 +133,7 @@ void *accepted_connection(void *socketdesc)
 	{
 		if((incomingmessagesize = recv(sock, inmessage,256, MSG_WAITALL)) != 0)
 		{
+			write(sock,inmessage,sizeof(inmessage));
 			getCommands(inmessage, socketdesc);
 		}
 		bzero(inmessage,sizeof(inmessage));

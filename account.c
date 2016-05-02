@@ -193,7 +193,7 @@ void printStatus(BankPtr *bPtr)
 			acct = bank->bankAccount[i];
 			if((Account *)(acct) == NULL)
 			{
-				printf("No information for account: %d\n", i);
+				//printf("No information for account: %d\n", i);
 			}
 			else
 			{
