@@ -24,6 +24,11 @@ void error(char* msg)
 	exit(0);
 }
 
+void accountActions(int cmd, Account *account)
+{
+
+}
+
 
 /*---------------------------------------------------STRING PARSING STUFF----------------------------------------------*/
 
@@ -35,6 +40,7 @@ void getCommands(char *input, void *socketdesc)
 	int len;
 	int keyword = 0;
 	Account *temp;
+	Account activeAccount;
 
 
 
@@ -50,39 +56,27 @@ void getCommands(char *input, void *socketdesc)
 		}
 	}
 
-	switch(keyword)
+			// temp = createAccount(argument);
+			// temp->isActive = 1;
+			// insert(bankPtr->bank, temp);
+			// free(temp);
+			// send(replysock, "Account Opened.", 20,0);
+
+	if(keyword == 0)
 	{
-		//open
-		case 0:
-			temp = createAccount(argument);
-			temp->isActive = 1;
-			insert(bankPtr->bank, temp);
-			free(temp);
-			send(replysock, "great job", 20,0);
-			break;
-		case 1:
-			findAccount(bankPtr, argument);
-			break;
-		case 2:
-			puts("credit");
-			break;
-		case 3:
-			puts("debit");
-			break;
-		case 4:
-			puts("balance");
-			break;
-		case 5:
-			puts("finish");
-			break;
-		case 6:
-			puts("exit");
-			break;	
-		default:
-			puts("fell through");
-			break;
+		temp = createAccount(argument);
+		temp->isActive = 1;
+		insert(bankPtr->bank, temp);
+		free(temp);
+		send(replysock, "Account Opened.", 20,0);
+		activeAccount = temp;
 	}
-	//return 0;
+	else if(keyword == 1)
+	{
+		activeAccount  = findAccount(bankPtr, argument);
+		
+
+	}
 }
 
 

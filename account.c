@@ -136,7 +136,7 @@ char *reportBalance(Account *acc)
 	}
 }
 
-void findAccount(BankPtr *bPtr, char* name)
+Account* findAccount(BankPtr *bPtr, char* name)
 {
 	Bank *bank;
 	Account *acct;
@@ -159,6 +159,7 @@ void findAccount(BankPtr *bPtr, char* name)
 				if(strcmp((acct->acctName), name) == 0)
 				{
 					acct->isActive = 1;
+					return acct;
 					printf("account found and marked active\n");
 				}
 				else
@@ -170,7 +171,7 @@ void findAccount(BankPtr *bPtr, char* name)
 
 	}
 
-	return;
+	return NULL;
 }
 
 void printStatus(BankPtr *bPtr)
