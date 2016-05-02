@@ -92,7 +92,7 @@ void *sendToServer(void *socketdesc)// this is the writer thread
 		write(sock, outmessage, outgoingmessagesize);
 	}
 
-		return 0;
+	return 0;
 }
 
 
@@ -107,6 +107,18 @@ int main(int argc, char *argv[])
     int connectStatus;
     pthread_t server_thread;
     pthread_t user_thread;
+	//actual threads
+	//create empty thread attribute struct
+	pthread_attr_t serverThreadAttr;
+	pthread_attr_t clientThreadAttr;
+	pthread_attr_init(&serverThreadAttr);
+	pthread_attr_init(&clientThreadAttr);
+	// set the initialized attribute struct so that the pthreads created will be joinable
+	pthread_attr_setdetachstate(&serverThreadAttr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_setdetachstate(&clientThreadAttr, PTHREAD_CREATE_JOINABLE);
+	// set the initialized attribute struct so that the pthreads created will be kernel threads
+	pthread_attr_setscope(&serverThreadAttr, PTHREAD_SCOPE_SYSTEM);
+	pthread_attr_setscope(&clientThreadAttr, PTHREAD_SCOPE_SYSTEM);
     
 	
 	
@@ -161,16 +173,17 @@ int main(int argc, char *argv[])
 
 	if(pthread_create(&server_thread, NULL, getFromServer, (void*)&sockfd) < 0)
 	{
-		error("could not create thread");
+		error("could not create server thread");
 	}
 
 	//thread to communicate with user
 	if(pthread_create(&user_thread, NULL, sendToServer, (void*)&sockfd) < 0)
 	{
-		error("could not create thread");
+		error("could not create user thread");
 	}
 
 	//we're connected in this loop, things the client does go in here
+	//this keeps everything alive and holy shit thats scary
 	//idk when it ends honestly i just sigint it
 
 	while(pthread_join(server_thread, (void*)getFromServer) == 0)

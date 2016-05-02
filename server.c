@@ -14,6 +14,7 @@
 
 
 BankPtr *bankPtr;
+char *dict[7] = {"open","start","credit","debit","balance","finish","exit"};
 
 //fun error method #extensible #objectoriented
 void error(char* msg)
@@ -28,20 +29,14 @@ void error(char* msg)
 
 void getCommands(char *input, void *socketdesc)
 {
-	// int sock = *(int*)socketdesc;
-	// char *reply = calloc(1,100);
-	const char *dict[7];
+	int replysock = *(int*)socketdesc;
 	char* ptr;
 	char argument[100];
 	int len;
+	int keyword;
 	Account *temp;
-	dict[0] = "open";
-	dict[1] = "start";
-	dict[2] = "credit";
-	dict[3] = "debit";
-	dict[4] = "balance";
-	dict[5] = "finish";
-	dict[6] = "exit";
+
+
 
 	for(int i = 0; i < 7; i++)
 	{
@@ -51,44 +46,53 @@ void getCommands(char *input, void *socketdesc)
 			len = strlen(dict[i]);
 			memset(argument,0,100);
 			strncpy(argument, &input[len],strlen(input));
-			switch(i)
-			{
-				//open
-				case 0:
-					temp = createAccount(argument);
-					temp->isActive = 1;
-					insert(bankPtr->bank, temp);
-					free(temp);
-					break;
-				case 1:
-					findAccount(bankPtr, argument);
-					break;
-				case 2:
-					printf("credit");
-					break;
-				case 3:
-					printf("debit");
-					break;
-				case 4:
-					printf("balance");
-					break;
-				case 5:
-					printf("finish");
-					break;
-				case 6:
-					printf("exit");
-					break;	
-				default:
-					printf("fell through");
-			}
-			return;
+			keyword = i;	
 		}
-		return;
 	}
-	return;
 
+	switch(keyword)
+	{
+		//open
+		case 0:
+			temp = createAccount(argument);
+			temp->isActive = 1;
+			insert(bankPtr->bank, temp);
+			free(temp);
+			send(replysock, "great job", 20,0);
+			break;
+		case 1:
+			findAccount(bankPtr, argument);
+			break;
+		case 2:
+			puts("credit");
+			break;
+		case 3:
+			puts("debit");
+			break;
+		case 4:
+			puts("balance");
+			break;
+		case 5:
+			puts("finish");
+			break;
+		case 6:
+			puts("exit");
+			break;	
+		default:
+			puts("fell through");
+			break;
+	}
+	//return 0;
 }
 
+
+void removeSubstring(char *s,const char *toremove)
+{
+	while( (s=strstr(s,toremove)) )
+	{
+    	memmove(s,s+strlen(toremove),1+strlen(s+strlen(toremove)));
+	}
+}
 
 /*--------------------------------------------ACCOUNT PRINTING THINGS GO HERE-----------------------------------------------*/
 void *printInfo()
@@ -115,20 +119,26 @@ void *accepted_connection(void *socketdesc)
 {
 	int incomingmessagesize;
 	int sock = *(int*)socketdesc;
+	char *test;
 	char inmessage[256];
 	char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust";
 	write(sock, message, strlen(message));
-	//memset(message, 0, 255);
+	
 
 	//this is where we get messages from the client, inmessage is the command
-	while((incomingmessagesize = recv(sock, inmessage,256,0))>0){
-		//get commands takes a socket for writeback to client
-		getCommands(inmessage, socketdesc);
+	while(1)
+	{
+		if((incomingmessagesize = recv(sock, inmessage,256,0)) != 0)
+		{
+			test = inmessage;
+		}
+		getCommands(test, socketdesc);
 	}
+
 
 	puts("Client Disconnected");
 
-	memset(message, 0, 255);
+	//memset(message, 0, 255);
 	return 0;
 }
 
