@@ -42,7 +42,7 @@ Account *createAccount(char* name)
 	{
 		account->acctName = name;
 		account->acctBalance = 0.00f;
-		account->isActive = 0;
+		account->isActive = 1;
 		return account;
 	}
 	else

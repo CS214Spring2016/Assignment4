@@ -78,8 +78,6 @@ void getCommands(char *input, void *socketdesc)
 		puts("Client Disconnected");
 		write(replysock,"Exiting session...",30);
 		close(replysock);
-		pthread_exit(NULL);
-		//free(keyword);
 	}
 	else
 	{

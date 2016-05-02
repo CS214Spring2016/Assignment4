@@ -84,14 +84,17 @@ void *sendToServer(void *socketdesc)// this is the writer thread
 {
 
 	int sock = *(int*)socketdesc;
-	char outmessage[[256];
-	memset(outmessage, 0, outgoingmessagesize);
-	while(fgets(outmessage,outgoingmessagesize,stdin)){
-		fixString(outmessage);
-		write(sock, outmessage, outgoingmessagesize);
+	char outmessage[256];
+	memset(outmessage, 0, 256);
+	while(1)
+	{
+		if(fgets(outmessage,255,stdin) != 0)
+		{
+			fixString(outmessage);
+			write(sock,outmessage,256);
+		}
 		sleep(2);
-		fflush(stdin);
-		fflush(stdout);
+		//fflush(stdin);
 	}
 
 	return 0;
