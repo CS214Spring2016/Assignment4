@@ -15,6 +15,7 @@
 
 BankPtr *bankPtr;
 char *dict[8] = {" ","open","start","credit","debit","balance","finish","exit"};
+int location;
 
 //fun error method #extensible #objectoriented
 void error(char* msg)
@@ -32,7 +33,7 @@ void accountActions(int cmd, Account *account)
 
 /*---------------------------------------------------STRING PARSING STUFF----------------------------------------------*/
 
-void getCommands(char *input, void *socketdesc)
+void getCommands(char *input, void *socketdesc, int index)
 {
 	int replysock = *(int*)socketdesc;
 	char* ptr;
@@ -132,7 +133,7 @@ void *accepted_connection(void *socketdesc)
 		if((incomingmessagesize = recv(sock, inmessage,256, MSG_WAITALL)) != 0)
 		{
 			write(sock,inmessage,sizeof(inmessage));
-			getCommands(inmessage, socketdesc);
+			getCommands(inmessage, socketdesc , 0);
 		}
 		bzero(inmessage,sizeof(inmessage));
 	}

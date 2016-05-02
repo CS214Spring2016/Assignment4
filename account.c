@@ -71,8 +71,9 @@ void debitBalance(Account *acc, float amount)
 	}
 }
 
-void insert(Bank *bank, Account *account)
+int insert(Bank *bank, Account *account)
 {
+	int ret = 0;
 	Account *acc = account;
 	int location = bank->numAccounts;
 	if((Bank *)(bank) == NULL)
@@ -83,9 +84,10 @@ void insert(Bank *bank, Account *account)
 	{
 		bank->bankAccount[location] = acc;
 		bank->numAccounts++;
+		return ret;
 	}
 
-	return;
+	return 0;
 }
 
 

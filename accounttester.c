@@ -78,11 +78,11 @@ int getCommands(char *input, int currentaccount)
 
 	switch(keyword){
 		case 0:
-				//temp = createAccount(argument);
-				//temp->isActive = 1;
-				//insert(bankPtr->bank, temp);
-				//free(temp);
-				puts("great job");
+				temp = createAccount(argument);
+				temp->isActive = 1;
+				insert(bankPtr->bank, temp);
+				free(temp);
+				puts("open");
 				break;
 			case 1:
 				findAccount(bankPtr, argument);
