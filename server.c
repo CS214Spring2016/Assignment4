@@ -119,7 +119,6 @@ void *accepted_connection(void *socketdesc)
 {
 	int incomingmessagesize;
 	int sock = *(int*)socketdesc;
-	char *test;
 	char inmessage[256];
 	char *message = "Hello friend, you have connected to Barrett & Shafran Community Trust";
 	write(sock, message, strlen(message));
@@ -130,11 +129,9 @@ void *accepted_connection(void *socketdesc)
 	{
 		if((incomingmessagesize = recv(sock, inmessage,256, MSG_WAITALL)) != 0)
 		{
-			test = inmessage;
-			puts("in the if loop");
+			getCommands(inmessage, socketdesc);
 		}
-		getCommands(test, socketdesc);
-		bzero(test,strlen(test));
+		bzero(inmessage,sizeof(inmessage));
 	}
 
 

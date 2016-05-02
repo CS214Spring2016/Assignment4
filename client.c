@@ -90,6 +90,7 @@ void *sendToServer(void *socketdesc)// this is the writer thread
 	while(fgets(outmessage,outgoingmessagesize,stdin)){
 		fixString(outmessage);
 		write(sock, outmessage, outgoingmessagesize);
+		sleep(2);
 	}
 
 	return 0;
