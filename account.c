@@ -38,6 +38,10 @@ Account *createAccount(char* name)
 	{
 		name[99] = '\0';
 	}
+	if(name == NULL)
+	{
+		return NULL;
+	}
 	if(account != NULL)
 	{
 		account->acctName = name;

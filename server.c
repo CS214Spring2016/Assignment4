@@ -43,6 +43,7 @@ int getCommands(char *input, int socketdesc, int index)
 
 	char* ptr;
 	char argument[100];
+	memset(argument,0,100);
 	int len;
 	int keyword = 0;
 	int i;
@@ -61,6 +62,15 @@ int getCommands(char *input, int socketdesc, int index)
 		}
 	}
 
+	printf("index: %d\n", index);
+
+	if(index > -1)
+	{
+		printf("%s\n",bankPtr->bank->bankAccount[index]->acctName);
+	}
+
+
+
 			// temp = createAccount(argument);
 			// temp->isActive = 1;
 			// insert(bankPtr->bank, temp);
@@ -73,6 +83,7 @@ int getCommands(char *input, int socketdesc, int index)
 		if(index != -1)
 		{
 			send(socketdesc, "Account already started",30,0);
+			index = -1;
 			
 		}
 		else
@@ -88,6 +99,7 @@ int getCommands(char *input, int socketdesc, int index)
 		if(index != -1)
 		{
 			send(socketdesc, "Account already started",30,0);
+			index = -1;
 			
 		}
 		index  = findAccount(bankPtr, argument);
@@ -140,8 +152,9 @@ int getCommands(char *input, int socketdesc, int index)
 		}
 		else
 		{
+			float bal = reportBalance(bankPtr->bank->bankAccount[index]);
 			char tosend[250];
-			snprintf(tosend, 250, "%.2f",reportBalance(bankPtr->bank->bankAccount[index]));
+			snprintf(tosend, 250, "Your balance is: %.2f",bal);
 			send(socketdesc,tosend,250,0);
 			
 		}
