@@ -44,6 +44,8 @@ int getCommands(char *input, int socketdesc, int index)
 	int keyword = 0;
 	int i;
 	char name[100];
+	char cred[100];
+	char deb[100];
 
 
 
@@ -58,13 +60,6 @@ int getCommands(char *input, int socketdesc, int index)
 			keyword = i;
 			break;	
 		}
-	}
-
-	printf("index: %d\n", index);
-
-	if(index > -1)
-	{
-		printf("%s\n",bankPtr->bank->bankAccount[index]->acctName);
 	}
 
 	//open autostarts
@@ -107,7 +102,9 @@ int getCommands(char *input, int socketdesc, int index)
 		}
 		else
 		{
-			creditBalance((bankPtr->bank->bankAccount[index]) , argument);
+			strcpy(cred,argument);
+			creditBalance((bankPtr->bank->bankAccount[index]) , cred);
+			send(socketdesc,"Account credited",30,0);
 			
 		}
 	}
@@ -121,7 +118,8 @@ int getCommands(char *input, int socketdesc, int index)
 		}
 		else
 		{
-			if(debitBalance((bankPtr->bank->bankAccount[index]) , argument) == 0)
+			strcpy(deb,argument);
+			if(debitBalance((bankPtr->bank->bankAccount[index]) , deb) == 0)
 			{
 				send(socketdesc, "Insufficient Funds.", 40, 0);	
 				
@@ -143,9 +141,9 @@ int getCommands(char *input, int socketdesc, int index)
 		}
 		else
 		{
-			float bal = reportBalance(bankPtr->bank->bankAccount[index]);
 			char tosend[250];
-			snprintf(tosend, 250, "Your balance is: %.2f",bal);
+			memset(tosend,0,250);
+			snprintf(tosend, 250, "Your balance is: %.2f",bankPtr->bank->bankAccount[index]->acctBalance);
 			send(socketdesc,tosend,250,0);
 			
 		}
@@ -253,7 +251,6 @@ void *accepted_connection(void *socketdesc)
 	close(sock);
 
 	//memset(message, 0, 255);
-	puts("here");
 	return (NULL);
 }
 
