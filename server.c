@@ -178,7 +178,7 @@ int getCommands(char *input, int socketdesc, int index)
 	else if(keyword == 7)
 	{
 		//puts("Client Disconnected");
-		bankPtr->bank->bankAccount[index]->isActive = 0;
+		//bankPtr->bank->bankAccount[index]->isActive = 0;
 		write(socketdesc,"Exiting session...",30);
 		close(socketdesc);
 		index = -2;
