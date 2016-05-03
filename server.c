@@ -199,7 +199,7 @@ void *printInfo()
 {
     do
     {
-        sleep(5);
+        sleep(20);
         printStatus(bankPtr);
         puts("END OF REPORT");
 
