@@ -30,14 +30,15 @@ typedef struct BankPtr BankPtr;
 Bank *openBank();
 BankPtr *createBankPtr();
 Account *createAccount(char* name);
-void creditBalance(Account *acc, float amount);
-void debitBalance(Account *acc, float amount);
+void creditBalance(Account *acc, char* amount);
+int debitBalance(Account *acc, char* amount);
 void destroyAccount(Account *acc);
 void flagActive(Account *acc);
 void flagInactive(Account *acc);
 void printStatus(BankPtr *bPtr);
-Account *findAccount(BankPtr *bPtr, char* name);
+int findAccount(BankPtr *bPtr, char* name);
 int insert(Bank *bank, Account *account);
+float reportBalance(Account *account);
 
 
 

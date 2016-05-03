@@ -53,21 +53,24 @@ Account *createAccount(char* name)
 }
 
 
-void creditBalance(Account *acc, float amount)
+void creditBalance(Account *acc, char* amount)
 {
-	acc->acctBalance += amount;
+	float am = atof(amount);
+	acc->acctBalance += am;
 }
 
 
-void debitBalance(Account *acc, float amount)
+int debitBalance(Account *acc, char* amount)
 {
-	if((acc->acctBalance - amount) < 0)
+	float am = atof(amount);
+	if((acc->acctBalance - am) < 0)
 	{
-		printf("invalid debit attempt: insufficient funds\n");
+		return 0;
 	}
 	else
 	{
-		acc->acctBalance -= amount;
+		acc->acctBalance -= am;
+		return 1;
 	}
 }
 
@@ -121,24 +124,21 @@ void flagInactive(Account *acc)
 	acc->isActive = 0;
 }
 
-char *reportBalance(Account *acc)
+float reportBalance(Account *acc)
 {
-	char *toReturn = calloc(1,20);
 	float bal;
 	if(acc == NULL)
-	{
-		char *message = "Null balance. Please call your bank's local branch.";
-		return message;
+	{	
+		return 0;
 	}
 	else
 	{
 		bal = acc->acctBalance;
-		snprintf(toReturn, 20, "%.2f", bal);
-		return (char*)toReturn;	
+		return bal;
 	}
 }
 
-Account* findAccount(BankPtr *bPtr, char* name)
+int findAccount(BankPtr *bPtr, char* name)
 {
 	Bank *bank;
 	Account *acct;
@@ -161,7 +161,7 @@ Account* findAccount(BankPtr *bPtr, char* name)
 				if(strcmp((acct->acctName), name) == 0)
 				{
 					acct->isActive = 1;
-					return acct;
+					return i;
 					printf("account found and marked active\n");
 				}
 				else
@@ -173,7 +173,7 @@ Account* findAccount(BankPtr *bPtr, char* name)
 
 	}
 
-	return NULL;
+	return 0;
 }
 
 void printStatus(BankPtr *bPtr)

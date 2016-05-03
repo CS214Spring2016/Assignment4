@@ -69,9 +69,13 @@ void *getFromServer(void *socketdesc)//this is the reader thread
 	int sock = *(int*)socketdesc;
 	char inmessage[256];
 	//memset(inmessage, 0, 256);
-	while((incomingmessagesize = recv(sock, inmessage,256, 0))>0)
+	while(1)
 	{
-		puts(inmessage);
+		if((incomingmessagesize = recv(sock, inmessage,256, 0))>0)
+		{
+			puts(inmessage);
+		}
+
 	}
 	puts("Server Disconnected");
 
