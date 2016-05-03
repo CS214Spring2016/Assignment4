@@ -27,12 +27,6 @@ void error(char* msg)
 	exit(0);
 }
 
-void accountActions(int cmd, Account *account)
-{
-
-}
-
-
 /*---------------------------------------------------STRING PARSING STUFF----------------------------------------------*/
 
 int getCommands(char *input, int socketdesc, int index)
