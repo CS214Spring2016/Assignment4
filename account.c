@@ -133,7 +133,7 @@ void flagInactive(Account *acc)
 
 float reportBalance(Account *acc)
 {
-	Account *temp;
+	Account *temp = malloc(sizeof(struct account_));
 	temp = acc;
 	float bal;
 	if(temp == NULL)

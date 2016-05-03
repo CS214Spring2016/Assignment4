@@ -33,6 +33,8 @@ int getCommands(char *input, int socketdesc, int index)
 {
 	pthread_mutex_lock(&pleasework);
 
+	//printStatus(bankPtr);
+
 
 
 	char* ptr;
@@ -41,6 +43,7 @@ int getCommands(char *input, int socketdesc, int index)
 	int len;
 	int keyword = 0;
 	int i;
+	char name[100];
 
 
 
@@ -50,6 +53,7 @@ int getCommands(char *input, int socketdesc, int index)
 		{
 			ptr = strstr(input,dict[i]);
 			len = strlen(dict[i]);
+			memset(argument,0,100);
 			strncpy(argument, &input[len],strlen(input));
 			keyword = i;
 			break;	
@@ -63,14 +67,6 @@ int getCommands(char *input, int socketdesc, int index)
 		printf("%s\n",bankPtr->bank->bankAccount[index]->acctName);
 	}
 
-
-
-			// temp = createAccount(argument);
-			// temp->isActive = 1;
-			// insert(bankPtr->bank, temp);
-			// free(temp);
-			// send((*(int*)socketdesc), "Account Opened.", 20,0);
-
 	//open autostarts
 	if(keyword == 1)
 	{
@@ -82,7 +78,8 @@ int getCommands(char *input, int socketdesc, int index)
 		}
 		else
 		{
-			index = insert(bankPtr->bank, createAccount(argument));
+			strcpy(name,argument);
+			index = insert(bankPtr->bank, createAccount(name));
 			send(socketdesc, "Account Opened.", 20,0);
 			
 		}
