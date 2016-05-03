@@ -16,6 +16,8 @@
 BankPtr *bankPtr;
 char *dict[8] = {" ","open","start","credit","debit","balance","finish","exit"};
 pthread_mutex_t pleasework;
+pthread_mutex_t otherone;
+
 
 //fun error method #extensible #objectoriented
 void error(char* msg)
@@ -33,11 +35,12 @@ void accountActions(int cmd, Account *account)
 
 /*---------------------------------------------------STRING PARSING STUFF----------------------------------------------*/
 
-int getCommands(char *input, void *socketdesc, int index)
+int getCommands(char *input, int socketdesc, int index)
 {
+	pthread_mutex_lock(&pleasework);
 
 
-	int replysock = *(int*)socketdesc;
+
 	char* ptr;
 	char argument[100];
 	int len;
@@ -62,20 +65,20 @@ int getCommands(char *input, void *socketdesc, int index)
 			// temp->isActive = 1;
 			// insert(bankPtr->bank, temp);
 			// free(temp);
-			// send(replysock, "Account Opened.", 20,0);
+			// send((*(int*)socketdesc), "Account Opened.", 20,0);
 
 	//open autostarts
 	if(keyword == 1)
 	{
 		if(index != -1)
 		{
-			send(replysock, "Account already started",30,0);
+			send(socketdesc, "Account already started",30,0);
 			
 		}
 		else
 		{
 			index = insert(bankPtr->bank, createAccount(argument));
-			send(replysock, "Account Opened.", 20,0);
+			send(socketdesc, "Account Opened.", 20,0);
 			
 		}
 	}
@@ -84,7 +87,7 @@ int getCommands(char *input, void *socketdesc, int index)
 	{
 		if(index != -1)
 		{
-			send(replysock, "Account already started",30,0);
+			send(socketdesc, "Account already started",30,0);
 			
 		}
 		index  = findAccount(bankPtr, argument);
@@ -96,7 +99,7 @@ int getCommands(char *input, void *socketdesc, int index)
 	{
 		if(index == -1)
 		{
-			send(replysock, "No account open/not in session", 40, 0);
+			send(socketdesc, "No account open/not in session", 40, 0);
 			
 		}
 		else
@@ -110,19 +113,19 @@ int getCommands(char *input, void *socketdesc, int index)
 	{
 		if(index == -1)
 		{
-			send(replysock, "No account open/not in session", 40, 0);
+			send(socketdesc, "No account open/not in session", 40, 0);
 			
 		}
 		else
 		{
 			if(debitBalance((bankPtr->bank->bankAccount[index]) , argument) == 0)
 			{
-				send(replysock, "Insufficient Funds.", 40, 0);	
+				send(socketdesc, "Insufficient Funds.", 40, 0);	
 				
 			}
 			else
 			{
-				send(replysock, "Account debited", 20, 0);
+				send(socketdesc, "Account debited", 20, 0);
 				
 			}
 		}
@@ -132,14 +135,14 @@ int getCommands(char *input, void *socketdesc, int index)
 	{
 		if(index == -1)
 		{
-			send(replysock, "no account open/not in session", 40, 0);
+			send(socketdesc, "no account open/not in session", 40, 0);
 			
 		}
 		else
 		{
 			char tosend[250];
 			snprintf(tosend, 250, "%.2f",reportBalance(bankPtr->bank->bankAccount[index]));
-			send(replysock,tosend,250,0);
+			send(socketdesc,tosend,250,0);
 			
 		}
 	}
@@ -147,30 +150,37 @@ int getCommands(char *input, void *socketdesc, int index)
 	{
 		if(index == -1)
 		{
-			send(replysock, "no account open/not in session", 40, 0);
+			send(socketdesc, "no account open/not in session", 40, 0);
 			
 		}
 		else
 		{
 			bankPtr->bank->bankAccount[index]->isActive = 0;
-			send(replysock,"session closed",20,0);
+			send(socketdesc,"session closed",20,0);
 			index = -1;
 
 		}
 	}
+	//exit
 	else if(keyword == 7)
 	{
-		puts("Client Disconnected");
-		write(replysock,"Exiting session...",30);
-		close(replysock);
+		//puts("Client Disconnected");
+		bankPtr->bank->bankAccount[index]->isActive = 0;
+		write(socketdesc,"Exiting session...",30);
+		close(socketdesc);
+		index = -2;
+		pthread_mutex_unlock(&pleasework);
 	}
 	else
 	{
-		puts("basecase hit");
+		write(socketdesc,"Plz no",30);
 	}
 
-
+	
+	
+	pthread_mutex_unlock(&pleasework);
 	return index;
+
 }
 
 
@@ -205,13 +215,13 @@ void *printInfo()
 //okay
 void *accepted_connection(void *socketdesc)
 {
-	pthread_mutex_lock(&pleasework);
 	int location = -1;
 	int incomingmessagesize;
-	int sock = *(int*)socketdesc;
+	int sock = (*(int*)socketdesc);
 	char inmessage[256];
 	char *message = "Hello friend, you have connected to Barrett & Shafran Capital";
-	write(sock, message, strlen(message));
+	write((*(int*)socketdesc), message, strlen(message));
+
 	
 
 	//this is where we get messages from the client, inmessage is the command
@@ -219,18 +229,28 @@ void *accepted_connection(void *socketdesc)
 	{
 		if((incomingmessagesize = recv(sock, inmessage,256, MSG_WAITALL)) != 0)
 		{
-			write(sock,inmessage,sizeof(inmessage));
-			location = getCommands(inmessage, socketdesc , location);
+			//write(sock,inmessage,sizeof(inmessage));
+			location = getCommands(inmessage, sock, location);
+			if(location == -2)
+			{
+				break;
+			}
+
+		}
+		else
+		{
+			return NULL;
 		}
 		bzero(inmessage,sizeof(inmessage));
 	}
 
 
 	puts("Client Disconnected");
+	close(sock);
 
 	//memset(message, 0, 255);
-	pthread_mutex_unlock(&pleasework);
-	return 0;
+	puts("here");
+	return (NULL);
 }
 
 void *session_acceptor()
@@ -243,6 +263,7 @@ void *session_acceptor()
 	{
 		puts("mutex init failed");
 	}
+
 
 
 	unsigned int cliLen = -1;
@@ -274,7 +295,7 @@ void *session_acceptor()
 	//client-service thread
 	pthread_t client_thread;
 	pthread_attr_t cliThreadAttr;
-	void* clientStatus;
+	//void* clientStatus;
 	pthread_attr_init(&cliThreadAttr);
 	pthread_attr_setdetachstate(&cliThreadAttr, PTHREAD_CREATE_JOINABLE);
 	pthread_attr_setscope(&cliThreadAttr, PTHREAD_SCOPE_SYSTEM);
@@ -298,7 +319,7 @@ void *session_acceptor()
 		error("Connection accept failed");
 	}
 
-	pthread_join(client_thread, &clientStatus);
+	pthread_join(client_thread, NULL);
 	pthread_mutex_destroy(&pleasework);
 	return 0;
 

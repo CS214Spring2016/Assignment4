@@ -55,8 +55,11 @@ Account *createAccount(char* name)
 
 void creditBalance(Account *acc, char* amount)
 {
+	Account *temp;
+	temp = acc;
 	float am = atof(amount);
-	acc->acctBalance += am;
+	temp->acctBalance += am;
+	acc = temp;
 }
 
 
@@ -126,14 +129,16 @@ void flagInactive(Account *acc)
 
 float reportBalance(Account *acc)
 {
+	Account *temp;
+	temp = acc;
 	float bal;
-	if(acc == NULL)
+	if(temp == NULL)
 	{	
 		return 0;
 	}
 	else
 	{
-		bal = acc->acctBalance;
+		bal = temp->acctBalance;
 		return bal;
 	}
 }

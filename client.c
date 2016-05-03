@@ -75,6 +75,10 @@ void *getFromServer(void *socketdesc)//this is the reader thread
 		{
 			puts(inmessage);
 		}
+		else
+		{
+			pthread_exit(NULL);
+		}
 
 	}
 	puts("Server Disconnected");
