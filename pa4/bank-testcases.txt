@@ -1,0 +1,5 @@
+input: "./server"
+output: "waiting for connection"
+
+input: "./client localhost"
+output: "Hello friend, you have connected to Barrett and Shafran Capital"

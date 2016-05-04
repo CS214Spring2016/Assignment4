@@ -1,0 +1,18 @@
+Testcases:
+	test 0:
+		basic functionality, one account.
+		open account with name
+		server prints balance on 20 second loop
+		credit account
+		debit account
+		print balance
+	test 2:
+		two clients
+		both connect simultaneously
+		both open accounts
+		both accounts print on server
+		both accounts are able to be debit/credited, and can show balance
+	test 3:
+		one client
+		open account
+		attempt to open different account, blocked by program
